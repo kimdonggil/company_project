@@ -19,3 +19,5 @@
 
 ![Static Badge](https://img.shields.io/badge/nvidia_gpu-535.183.01-orange)
 ![Static Badge](https://img.shields.io/badge/nvidia_cuda-12.2-orange)
+
+<img src="nvidia_gpu/h100.png" alt="nvidia-smi" width="60%">
