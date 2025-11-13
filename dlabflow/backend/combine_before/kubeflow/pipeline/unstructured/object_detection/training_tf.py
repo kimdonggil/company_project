@@ -30,8 +30,8 @@ KubeflowNamespace = os.getenv('KubeflowNamespace1')
 KubeflowVolumeName = os.getenv('KubeflowVolumeName1')
 KubeflowVolumeMountPath = os.getenv('KubeflowVolumeMountPath1')
 KubeflowPieplineName = os.getenv('KubeflowPieplineTraining')
-KubeflowGPUName = os.getenv('KubeflowGPUName1')
-KubeflowGPUValue = os.getenv('KubeflowGPUValue1')
+KubeflowGPUName = os.getenv('KubeflowGPUName4')
+KubeflowGPUValue = os.getenv('KubeflowGPUValue4')
 
 @partial(create_component_from_func, base_image='dgkim1983/dlabflow:unstructured-objectdetection-20251031-beta')
 def Training(projectId: str, versionId: str, algorithm:str, batchsize:int, epoch:int, tuning: str, advancedSettingForObjectDetection: Optional[str] = None):
