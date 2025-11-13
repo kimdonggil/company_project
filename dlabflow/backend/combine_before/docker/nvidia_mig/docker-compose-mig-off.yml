@@ -1,0 +1,22 @@
+services:
+  model:
+    restart: always
+    container_name: test_dgkim1108
+    build: .
+    ports:
+      - 6006:6006
+      - 8888:8888
+    runtime: nvidia
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            device_ids: ['0']
+            capabilities: [gpu]
+    volumes:
+      - ./:/workspace/working
+    working_dir: /workspace
+    command: jupyter lab --ip=0.0.0.0 --allow-root --NotebookApp.token=''
+

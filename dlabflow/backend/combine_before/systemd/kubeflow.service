@@ -1,0 +1,11 @@
+[Unit] 
+Description=Kubeflow Service 
+After=network.target 
+
+[Service]
+type=simple
+ExecStart=/bin/bash /mnt/dlabflow/backend/kubeflow/start.sh 
+Restart=always 
+
+[Install] 
+WantedBy=multi-user.target

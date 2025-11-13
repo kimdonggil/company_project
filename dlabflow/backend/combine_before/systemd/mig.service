@@ -1,0 +1,11 @@
+[Unit]
+Description=Configure NVIDIA MIG on boot
+After=default.target
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/nvidia-smi -pm 1
+ExecStart=/mnt/dlabflow/backend/gpu/nvidia-cleanup-and-mig-setup.sh
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+spec:
+  volumes:
+    - name: example-storage
+      persistentVolumeClaim:
+        claimName: example-claim
+  containers:
+    - name: example-container
+      image: nginx
+      ports:
+        - containerPort: 80
+      volumeMounts:
+        - mountPath: /mnt/project/dlabflow
+          name: example-storage

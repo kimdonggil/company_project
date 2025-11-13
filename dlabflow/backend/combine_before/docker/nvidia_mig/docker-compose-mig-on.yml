@@ -1,0 +1,22 @@
+services:
+  model:
+    container_name: test_dgkim1108
+    image: nvcr.io/nvidia/pytorch:24.06-py3  # 또는 원하는 이미지로 변경 가능
+    restart: always
+    ports:
+      - 6006:6006
+      - 8888:8888
+    runtime: nvidia
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['MIG-a5712003-2612-5344-94ba-8040a8eb14a5']
+              capabilities: [gpu]
+    volumes:
+      - ./:/workspace/working
+    working_dir: /workspace
+    command: bash -c "pip install --no-cache-dir jupyterlab && jupyter lab --ip=0.0.0.0 --allow-root --NotebookApp.token=''"
+

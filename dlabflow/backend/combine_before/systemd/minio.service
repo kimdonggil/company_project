@@ -1,0 +1,12 @@
+[Unit] 
+Description=MinIO Service
+After=network.target 
+
+[Service]
+type=simple
+ExecStart=/bin/bash /mnt/project/dlabflow/backend/minio/start.sh 
+Restart=always 
+
+[Install] 
+WantedBy=multi-user.target 
+
