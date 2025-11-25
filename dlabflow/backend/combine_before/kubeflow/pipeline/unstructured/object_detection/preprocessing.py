@@ -414,23 +414,22 @@ def Preprocessing(projectId: str, versionId: str, dataPath: str, dataNormalizati
             test_dir = os.path.join(output_dir, 'test')
             for d in [train_dir, val_dir, test_dir]:
                 os.makedirs(d, exist_ok=True)
-            images = sorted([str(p) for p in Path(base_dir).rglob('*') if p.suffix.lower() in allow_ext and not str(p).startswith(output_dir)])
+
+            images = sorted([
+                str(p) for p in Path(base_dir).rglob('*')
+                if p.suffix.lower() in allow_ext and not str(p).startswith(output_dir)
+            ])
             print(f"총 이미지 수: {len(images)}")
             total_count = len(images)
-            temp_ratio = 1 - train_ratio
-            train_files, temp_files = train_test_split(images, test_size=temp_ratio, random_state=42)
-            n_val = int(total_count * val_ratio)
-            n_test = n_val
-            n_temp = len(temp_files)
-            if n_temp != n_val + n_test:
-                adjust = n_temp - (n_val + n_test)
-                n_test += adjust
-                if adjust != 0:
-                    n_test -= adjust
-                    train_files += temp_files[:adjust]
-                    temp_files = temp_files[adjust:]
-            val_files = temp_files[:n_val]
-            test_files = temp_files[n_val:n_val+n_test]
+
+            n_train = round(total_count * train_ratio)
+            n_val = round(total_count * val_ratio)
+            n_test = total_count - n_train - n_val
+
+            train_files = images[:n_train]
+            val_files = images[n_train:n_train + n_val]
+            test_files = images[n_train + n_val:]
+
             def copy_pairs(file_list, target_dir):
                 for img in file_list:
                     img_path = Path(img)
@@ -438,17 +437,21 @@ def Preprocessing(projectId: str, versionId: str, dataPath: str, dataNormalizati
                     shutil.copy(img, target_dir)
                     if xml.exists():
                         shutil.copy(str(xml), target_dir)
+
             copy_pairs(train_files, train_dir)
             copy_pairs(val_files, val_dir)
             copy_pairs(test_files, test_dir)
+
             def count_files(folder, img_ext=allow_ext):
                 img_count = len([p for p in Path(folder).glob('*') if p.suffix.lower() in img_ext])
                 xml_count = len(list(Path(folder).glob('*.xml')))
                 return img_count, xml_count
+
             train_count, _ = count_files(train_dir)
             val_count, _ = count_files(val_dir)
             test_count, _ = count_files(test_dir)
             raw_count, _ = count_files(base_dir)
+
             db_mysql_preprocessing_update(
                 projectId=projectId,
                 versionId=versionId,
@@ -456,13 +459,15 @@ def Preprocessing(projectId: str, versionId: str, dataPath: str, dataNormalizati
                 numOfTest=test_count,
                 numOfValidation=val_count,
                 numOfRaw=raw_count,
-                numOfAugmentation=train_count+val_count+test_count-raw_count,
-                numOfAugmentationRaw=train_count+val_count+test_count
+                numOfAugmentation=train_count + val_count + test_count - raw_count,
+                numOfAugmentationRaw=train_count + val_count + test_count
             )
             db_mysql_stat_update(projectId, versionId, 'FINISH')
+
             for name, folder in zip(['Train', 'Val', 'Test'], [train_dir, val_dir, test_dir]):
                 imgs, xmls = count_files(folder)
                 print(f"{name}: 이미지 {imgs}개, XML {xmls}개")
+
         except Exception:
             db_mysql_stat_update(projectId=projectId, versionId=versionId, statusOfPreprocessing='ERROR')
             print('데이터 분리 과정에서 오류가 발생하였습니다.')

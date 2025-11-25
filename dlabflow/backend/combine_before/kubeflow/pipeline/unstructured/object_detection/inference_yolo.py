@@ -74,6 +74,7 @@ def Inference(projectId: str, versionId: str, sessionId: str):
                 confs = boxes.conf.cpu()
                 classes = boxes.cls.cpu()
                 xyxy = boxes.xyxy.cpu()
+                """
                 best_indices = []
                 for cls_id in torch.unique(classes):
                     cls_mask = classes == cls_id
@@ -81,8 +82,9 @@ def Inference(projectId: str, versionId: str, sessionId: str):
                     max_idx = torch.argmax(cls_confs)
                     best_indices.append(torch.arange(len(classes))[cls_mask][max_idx].item())
                 result.boxes = result.boxes[best_indices]
+                """
                 save_path = os.path.join(save_dir, f"result_{i}.jpg")
-                result.save(filename=save_path)            
+                result.save(filename=save_path)
         else:
             print('[ERROR] GPU is not available.')
 

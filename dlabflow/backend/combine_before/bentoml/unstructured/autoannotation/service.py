@@ -227,7 +227,7 @@ async def autoannotation(params: dict):
                 download_count = await download_from_minio_parallel(name1, name2, target_dir=images_paths, target_files=targetimageslist)
                 if download_count == 0:
                     bentoml_logger.error('MinIO에서 다운로드할 오토어노테이션 이미지가 없습니다. 오토어노테이션 스크립트 실행을 건너뜁니다.')
-                    db_mysql_update('Autoannotations', {'statusOfAutoAnnotation': 'FINISH', 'resultLabelingPaths': '[]'}, {'id': id, 'datasetId': datasetId})
+                    db_mysql_update('Autoannotations', {'statusOfAutoAnnotation': 'ERROR', 'resultLabelingPaths': '[]'}, {'id': id, 'datasetId': datasetId})
                     return {"message": "No images to process. Autoannotation skipped."}
                 current_row = df[df['id'] == id].iloc[0]
                 current_paths = json.loads(current_row['targetImagePaths'])
@@ -237,7 +237,7 @@ async def autoannotation(params: dict):
                     prev_paths = json.loads(prev_row['targetImagePaths'])
                     if (sorted(current_paths) == sorted(prev_paths) and current_row['resultLabelingPaths'] in ('[]', None, '', 'null')):
                         bentoml_logger.warning('이전 요청과 동일한 이미지이며 생성된 XML 파일이 없습니다. 오토어노테이션 스크립트 실행을 건너뜁니다.')
-                        db_mysql_update('Autoannotations', {'statusOfAutoAnnotation': 'FINISH', 'resultLabelingPaths': '[]'}, {'id': id, 'datasetId': datasetId})
+                        db_mysql_update('Autoannotations', {'statusOfAutoAnnotation': 'ERROR', 'resultLabelingPaths': '[]'}, {'id': id, 'datasetId': datasetId})
                         return {"message": "Same images with no xml file. Autoannotation skipped."}
             except Exception as e:
                 db_mysql_update('Autoannotations', {'statusOfAutoAnnotation': 'ERROR'}, {'id': id, 'datasetId': datasetId})
