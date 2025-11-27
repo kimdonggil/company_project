@@ -14,9 +14,6 @@
 
 ### D-Lab Flow
 
-- [x] 개발 중
-- [ ] 개발 완료
-
 `D-Lab Flow` 프로젝트는 **BentoML과 Kubeflow를 활용하여 AI 모델 개발 과정을 간소화**할 수 있습니다.
 
 - AI 모델 훈련 및 추론에는 `NVIDIA GPU H100`의 MIG(Multi-Instance GPU) 기능을 활용하며, GPU 0은 연구원 전용으로, GPU 1은 40GB씩 분할하여 각 기업에서 사용합니다.
@@ -33,7 +30,7 @@
 
 `GPU Resource Monitoring` 프로젝트는 **GPU 사용량을 실시간으로 추적하고 시각화**하여, 자원을 효율적으로 관리할 수 있습니다.
 
-![Image](https://github.com/user-attachments/assets/5cf41fee-9784-44c1-b04f-803d823075c9)
+![Image](https://github.com/user-attachments/assets/49366928-1ed7-45f8-b75f-d13bbb7745b2)
 
 - 해당 프로젝트는 `NVIDIA GeForce RTX 3090` 환경에서 진행합니다.
 
