@@ -15,4 +15,3 @@
 
 ### 실행 결과
 
-![Image](https://github.com/user-attachments/assets/a801214f-c0f9-44d4-94d4-17e17cc0aeff)
