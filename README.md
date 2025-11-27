@@ -33,7 +33,7 @@
 
 `GPU Resource Monitoring` 프로젝트는 **GPU 사용량을 실시간으로 추적하고 시각화**하여, 자원을 효율적으로 관리할 수 있습니다.
 
-![Image](https://github.com/user-attachments/assets/49366928-1ed7-45f8-b75f-d13bbb7745b2)
+![Image](https://github.com/user-attachments/assets/5cf41fee-9784-44c1-b04f-803d823075c9)
 
 - 해당 프로젝트는 `NVIDIA GeForce RTX 3090` 환경에서 진행합니다.
 
