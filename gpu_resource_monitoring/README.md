@@ -12,3 +12,7 @@
 
 ![Static Badge](https://img.shields.io/badge/fastapi-0.110.3-green)
 ![Static Badge](https://img.shields.io/badge/reflex-0.5.10.post1-green)
+
+### 실행 결과
+
+![Image](https://github.com/user-attachments/assets/a801214f-c0f9-44d4-94d4-17e17cc0aeff)
