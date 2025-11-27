@@ -10,7 +10,6 @@
 ![Static Badge](https://img.shields.io/badge/kubectl-1.29.5-blue)
 ![Static Badge](https://img.shields.io/badge/kustomize-5.0.3-blue)
 ![Static Badge](https://img.shields.io/badge/python-3.8.10-blue)
-![Static Badge](https://img.shields.io/badge/reflex-0.5.10.post1-blue)
 
 ### D-Lab Flow
 
