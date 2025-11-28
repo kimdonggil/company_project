@@ -2,6 +2,12 @@ import reflex as rx
 from typing import List, Dict
 import httpx
 
+gpu_memory_0 = 543
+gpu_percent_0 = 2.21
+
+gpu_memory_1 = 239
+gpu_percent_1 = 2.93
+
 class State(rx.State):
     gpu_count: int = 0
     mem_rates: List[Dict] = []
@@ -51,12 +57,12 @@ class State(rx.State):
     def mem_status_0(self) -> str:
         if len(self.mem_rates) > 0:
             used_percent = self.mem_rates[0]["mem_used_percent"]
-            return "사용 중" if used_percent > 2.2 else "사용 전"
+            return "사용 중" if used_percent > gpu_percent_0 else "사용 전"
         return "사용 전"
     @rx.var
     def mem_used_percents_0_fmt(self) -> str:
         if len(self.mem_rates) > 0:
-            val = round(self.mem_rates[0]['mem_used_percent']-2.2, 3)
+            val = round(self.mem_rates[0]['mem_used_percent']-gpu_percent_0, 3)
             return str(val).rstrip('0').rstrip('.')
         return "0"
 
@@ -77,12 +83,12 @@ class State(rx.State):
     def mem_status_1(self) -> str:
         if len(self.mem_rates) > 0:
             used_percent = self.mem_rates[1]["mem_used_percent"]
-            return "사용 중" if used_percent > 3.13 else "사용 전"
+            return "사용 중" if used_percent > gpu_percent_1 else "사용 전"
         return "사용 전"
     @rx.var
     def mem_used_percents_1_fmt(self) -> str:
         if len(self.mem_rates) > 1:
-            val = round(self.mem_rates[1]['mem_used_percent']-3.13, 3)
+            val = round(self.mem_rates[1]['mem_used_percent']-gpu_percent_1, 3)
             return str(val).rstrip('0').rstrip('.')
         return "0"    
 
@@ -108,6 +114,8 @@ def index() -> rx.Component:
                     on_change=lambda date: State.fetch_gpu_info(),
                     style={"display": "none"}
                 ),
+
+
                 rx.flex(
                     rx.card(
                         rx.flex(
@@ -204,7 +212,7 @@ def index() -> rx.Component:
                                 rx.badge(
                                     State.mem_status_0,
                                     color="white",
-                                    background_color=rx.cond(State.mem_used_percents_0 > 2.2, "blue", "red"),
+                                    background_color=rx.cond(State.mem_used_percents_0 > gpu_percent_0, "blue", "red"),
                                     size="2",
                                     variant="solid"
                                 ),
@@ -221,7 +229,7 @@ def index() -> rx.Component:
                                 rx.badge(
                                     State.mem_status_1,
                                     color="white",
-                                    background_color=rx.cond(State.mem_used_percents_1 > 3.13, "blue", "red"),
+                                    background_color=rx.cond(State.mem_used_percents_1 > gpu_percent_1, "blue", "red"),
                                     size="2",
                                     variant="solid"
                                 ),
@@ -244,11 +252,11 @@ def index() -> rx.Component:
                 rx.badge(rx.text(rx.text.strong("NVIDIA RTX 3090")), size="3", variant='surface'),
                 rx.hstack(
                     rx.text(rx.text.strong(f"GPU 카드 {State.mem_gpu_indexs_0}번 사용량"), white_space="nowrap"),
-                    rx.progress(value=State.mem_useds_0-541, max=State.mem_totals_0-541, width="600px"),
+                    rx.progress(value=State.mem_useds_0-gpu_memory_0, max=State.mem_totals_0-gpu_memory_0, width="600px"),
                     rx.text(
                         rx.text.strong(
                             #f"{State.mem_useds_0}/{State.mem_totals_0}MiB({State.mem_used_percents_0}%)"
-                            f"{State.mem_useds_0-541}/{State.mem_totals_0-541}MiB({State.mem_used_percents_0_fmt}%)"
+                            f"{State.mem_useds_0-gpu_memory_0}/{State.mem_totals_0-gpu_memory_0}MiB({State.mem_used_percents_0_fmt}%)"
                         ),
                         white_space="nowrap",
                     ),
@@ -257,11 +265,11 @@ def index() -> rx.Component:
                 rx.badge(rx.text(rx.text.strong("NVIDIA GeForce GTX 1080")), size="3", variant='surface'),
                 rx.hstack(
                     rx.text(rx.text.strong(f"GPU 카드 {State.mem_gpu_indexs_1}번 사용량"), white_space="nowrap"),
-                    rx.progress(value=State.mem_useds_1-256, max=State.mem_totals_1-256, width="600px"),
+                    rx.progress(value=State.mem_useds_1-gpu_memory_1, max=State.mem_totals_1-gpu_memory_1, width="600px"),
                     rx.text(
                         rx.text.strong(
                             #f"{State.mem_useds_1}/{State.mem_totals_1}MiB({State.mem_used_percents_1}%)"
-                            f"{State.mem_useds_1-256}/{State.mem_totals_1-256}MiB({State.mem_used_percents_1_fmt}%)"
+                            f"{State.mem_useds_1-gpu_memory_1}/{State.mem_totals_1-gpu_memory_1}MiB({State.mem_used_percents_1_fmt}%)"
                         ),
                         white_space="nowrap",
                     ),
@@ -279,4 +287,3 @@ def index() -> rx.Component:
 
 app = rx.App()
 app.add_page(index, title='GPU Monitoring')
-
