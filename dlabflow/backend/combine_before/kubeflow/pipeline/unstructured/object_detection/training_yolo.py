@@ -216,6 +216,7 @@ def Training(projectId: str, versionId: str, algorithm: str, batchsize: int, epo
         cuda = torch.cuda.is_available()
         if cuda == True:
             logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+            """
             class CustomCallback:
                 def __init__(self, epoch):
                     self.epoch = epoch
@@ -231,6 +232,56 @@ def Training(projectId: str, versionId: str, algorithm: str, batchsize: int, epo
                             logging.info(f"Epoch information is not available. Progress: unknown% at {current_time}.")
                     except Exception as e:
                         logging.error(f"Error in CustomCallback: {e}")
+                        raise
+            """
+            class CustomCallback:
+                def __init__(self, total_epochs):
+                    self.total_epochs = total_epochs
+                    self.current_epoch = 0
+                    self.epoch_durations = []
+                    self.last_epoch_end_time = None
+            
+                def on_train_epoch_start(self, model):
+                    self.current_epoch += 1
+                    self.epoch_start_time = (
+                        self.last_epoch_end_time
+                        if self.last_epoch_end_time is not None
+                        else int(datetime.now().timestamp())
+                    )
+            
+                    try:
+                        db_update(
+                            'Training',
+                            {
+                                'currentEpoch': self.current_epoch,
+                            },
+                            projectId,
+                            versionId
+                        )
+                    except Exception as e:
+                        raise
+            
+                def on_train_epoch_end(self, model):
+                    try:
+                        now_ts = int(datetime.now().timestamp())
+                        duration = now_ts - self.epoch_start_time
+                        self.epoch_durations.append(duration)
+                        self.last_epoch_end_time = now_ts
+            
+                        db_update(
+                            'Training',
+                            {
+                                'recentEpochStartTime': self.epoch_start_time,
+                                'recentEpochEndTime': now_ts,
+                                'epochDurations': json.dumps(self.epoch_durations),
+                                'trainProgress': (self.current_epoch / self.total_epochs) * 100,
+                                'epoch': self.current_epoch
+                            },                            
+                            projectId,
+                            versionId
+                        )
+            
+                    except Exception as e:
                         raise
 
             model_files = {
@@ -250,8 +301,9 @@ def Training(projectId: str, versionId: str, algorithm: str, batchsize: int, epo
             if model_file:
                 model = YOLO(model_file)
 
-            custom_callback = CustomCallback(epoch=epoch)
-            model.add_callback('on_train_epoch_end', custom_callback)
+            custom_callback = CustomCallback(total_epochs=epoch)
+            model.add_callback('on_train_epoch_start', custom_callback.on_train_epoch_start)
+            model.add_callback('on_train_epoch_end', custom_callback.on_train_epoch_end)
             val_images = glob(os.path.join(val_path, '**', '*.*'), recursive=True)
             val_images = [img for img in val_images if img.lower().endswith(('.jpg', '.jpeg', '.png'))]
 
