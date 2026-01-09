@@ -234,54 +234,73 @@ def Training(projectId: str, versionId: str, algorithm: str, batchsize: int, epo
                         logging.error(f"Error in CustomCallback: {e}")
                         raise
             """
+
             class CustomCallback:
                 def __init__(self, total_epochs):
                     self.total_epochs = total_epochs
                     self.current_epoch = 0
                     self.epoch_durations = []
                     self.last_epoch_end_time = None
-            
+                    self.epoch_start_time = None
+
+                def _get_timestamp(self):
+                    return int(datetime.now().timestamp())
+
                 def on_train_epoch_start(self, model):
                     self.current_epoch += 1
                     self.epoch_start_time = (
                         self.last_epoch_end_time
                         if self.last_epoch_end_time is not None
-                        else int(datetime.now().timestamp())
+                        else self._get_timestamp()
                     )
-            
-                    try:
-                        db_update(
-                            'Training',
-                            {
-                                'currentEpoch': self.current_epoch,
-                            },
-                            projectId,
-                            versionId
-                        )
-                    except Exception as e:
-                        raise
-            
+
                 def on_train_epoch_end(self, model):
+                    now_ts = self._get_timestamp()
+                    duration = now_ts - self.epoch_start_time
+                    self.epoch_durations.append(duration)
+                    self.last_epoch_end_time = now_ts
+
+                    update_data_first = {
+                        'currentEpoch': self.current_epoch,
+                    }
+
+
+                    update_data = {
+                        'currentEpoch': self.current_epoch,
+                        'recentEpochStartTime': self.epoch_start_time,
+                        'recentEpochEndTime': now_ts,
+                        'epochDurations': json.dumps(self.epoch_durations),
+                        'trainProgress': (self.current_epoch / self.total_epochs) * 100,
+                        'epoch': self.current_epoch
+                    }
+
                     try:
-                        now_ts = int(datetime.now().timestamp())
-                        duration = now_ts - self.epoch_start_time
-                        self.epoch_durations.append(duration)
-                        self.last_epoch_end_time = now_ts
-            
-                        db_update(
-                            'Training',
-                            {
-                                'recentEpochStartTime': self.epoch_start_time,
-                                'recentEpochEndTime': now_ts,
-                                'epochDurations': json.dumps(self.epoch_durations),
-                                'trainProgress': (self.current_epoch / self.total_epochs) * 100,
-                                'epoch': self.current_epoch
-                            },                            
-                            projectId,
-                            versionId
-                        )
-            
+                        if self.current_epoch == 1:
+                            logging.info(f"currentEpoch: {self.current_epoch}")
+                            db_update(
+                                'Training',
+                                update_data_first,
+                                projectId,
+                                versionId
+                            )
+                            logging.info(f"currentEpoch: {self.current_epoch}, recentEpochStartTime: {self.epoch_start_time}, recentEpochEndTime: {now_ts}, epochDurations: {self.epoch_durations}")
+                            db_update(
+                                'Training',
+                                update_data,
+                                projectId,
+                                versionId
+                            )                            
+
+                        else:
+                            logging.info(f"currentEpoch: {self.current_epoch}, recentEpochStartTime: {self.epoch_start_time}, recentEpochEndTime: {now_ts}, epochDurations: {self.epoch_durations}")
+                            db_update(
+                                'Training',
+                                update_data,
+                                projectId,
+                                versionId
+                            )
                     except Exception as e:
+                        print(f"Epoch DB update failed: {e}")
                         raise
 
             model_files = {
